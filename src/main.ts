@@ -9,6 +9,7 @@ import {
   initializeCookies, 
   initializeCors, 
   initializeSession, 
+  initializeStaticAssets, 
   initializeSwagger } from './bootstrap'
 
 async function bootstrap() {
@@ -26,7 +27,7 @@ async function bootstrap() {
 
   /* installation of auxiliary modules */
   initializeCors(app)
-  //initializeStaticAssets(app)
+  initializeStaticAssets(app)
   initializeSwagger(app)
 
   //initializeSentry(app)

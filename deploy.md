@@ -19,7 +19,7 @@ scp -r D:/nest/dragon-farm-server/ssl/ root@63.250.60.63:/etc/ssl/cert
 
 # restart server
 
-sudo systemctl restart toncase.service
+sudo systemctl restart kubiki.service
 
 # copy logs
 scp root@63.250.60.63:/var/www/toncase.fun/logs/* D:/logs/dragon-farm
