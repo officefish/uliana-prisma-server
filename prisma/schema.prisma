@@ -177,6 +177,8 @@ model Player {
   invitedBy             Player?               @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
   invitations           Player[]              @relation("UserInvitations")
   referralCode          String                @unique
+  referrerRewarded      Boolean               @default(false)
+
 
   tasks                 TaskInstance[]
   taskDatetime          DateTime?             @map("task_datetime")

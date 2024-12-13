@@ -58,6 +58,9 @@ export class PlayerDto {
   @ApiProperty({ description: 'Referral code used by the player', example: 'REF12345' })
   referralCode: string;
 
+  @ApiProperty({ description: 'Referral code used by the player', example: 'REF12345' })
+  referralRewarded: boolean;
+
   @ApiProperty({ description: 'List of tasks associated with the player', type: () => [TaskInstanceDto] })
   tasks?: TaskInstanceDto[];
 
