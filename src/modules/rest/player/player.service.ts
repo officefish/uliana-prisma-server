@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { PrismaService } from '@modules/prisma/prisma.service';
 
 import { Player, TelegramAccount } from '@prisma/client';
+import { CreatePlayerDto } from './dto/player.dto';
 
 export type PlayerWithTgAccount = Player & {
   tgAccount: TelegramAccount; // Add the TelegramAccount relationship
@@ -40,7 +41,6 @@ export class PlayerService {
         throw new NotFoundException(msg);
       }
 
-
     const player = await this.prisma.player.findUnique({ 
         where: { 
             tgAccountId : account.id
@@ -57,4 +57,62 @@ export class PlayerService {
     return player
   }
 
+  async createPlayer(createPlayerDto: CreatePlayerDto) : Promise<PlayerWithTgAccount> {
+
+    const { tgAccount, referralCode, active } = createPlayerDto;
+
+    const account = await this.prisma.telegramAccount.findUnique({
+      where: { tgId: createPlayerDto.tgAccount.tgId },
+    })
+
+    if (account) {
+      const existPlayer = await this.prisma.player.findUnique({
+        where: { 
+          tgAccountId : account.id
+        },
+        include: {
+          tgAccount: true
+        }
+      })
+
+      if (existPlayer) {
+        return existPlayer
+      }
+
+      return this.prisma.player.create({
+        data: {
+          active: active ?? true,
+          referralCode,
+          unsafe: false,
+          createdAt: new Date(),
+          tgAccount: {
+            connect: { id: account.id }
+        },
+      },
+      include: {
+        tgAccount: true, // Ensure the created TelegramAccount is included in the response
+      }});
+    
+    }
+
+    return this.prisma.player.create({
+      data: {
+        active: active ?? true,
+        referralCode,
+        tgAccount: {
+          create: {
+            username: tgAccount.username,
+            tgId: tgAccount.tgId,
+            firstName: tgAccount.firstName,
+            lastName: tgAccount.lastName,
+            imageUrl: tgAccount.imageUrl,
+            isPremium: tgAccount.isPremium ?? false,
+          },
+        },
+      },
+      include: {
+        tgAccount: true, // Ensure the created TelegramAccount is included in the response
+      },
+    });
+  }
 }
