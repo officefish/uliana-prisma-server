@@ -1,0 +1,9 @@
+#!/bin/bash
+# This is a comment
+#mongod --bind_ip localhost --dbpath C:\data\db --port 27017 --config ./mongo-one.conf
+#rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]});
+echo "MongoDB with replica set running..."
+
+mongod --config ./mongod-one-ubuntu.conf 
+
+echo "MongoDB with replica set stoped."

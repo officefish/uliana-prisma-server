@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Admin panel users
+
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  name          String?
+  password      String
+  secret        String?
+  salt          String
+  verified      Boolean
+  role          Role     @default(GUEST)
+  sessions      Session[]
+  basicInfo     BasicInfo?
+  quote         Quote?
+  domain        Domain?
+  avatar        Avatar? 
+  cover         Cover?
+  tartan        Tartan?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+}
+
+enum Role {
+  GUEST
+  MEMBER
+  PUBLISHER
+  DEVELOPER
+  ADMIN
+}
+
+model Session {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  token       String    @unique
+  valid       Boolean   @default(false)
+  userAgent   String?
+  language    String?
+  referer     String?
+  isMobile    Boolean?
+  user        User      @relation(fields:[userId], references:[id])
+  userId      String    @db.ObjectId
+}
+
+// BasicInfo
+
+model FullName {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String?
+  lastName        String?
+  basicInfo       BasicInfo @relation(fields:[basicInfoId], references:[id]) 
+  basicInfoId     String    @db.ObjectId @unique
+}
+
+model Career {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  company     String?
+  role        String?
+  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
+  basicInfoId String    @db.ObjectId @unique
+}
+
+model Education {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  university  String?
+  faculty     String?
+  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
+  basicInfoId String    @db.ObjectId @unique
+}
+
+model Location {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  country     String?
+  region      String?
+  timeZone    String?
+  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
+  basicInfoId String    @db.ObjectId @unique
+}
+
+model BasicInfo {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  fullName   FullName?
+  career     Career?
+  education  Education?
+  location   Location?
+}
+
+model Quote {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  content    String?
+}
+
+model Domain {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  value      String?   @unique
+}
+
+model Avatar {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  url        String?   
+}
+
+model Cover {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  url        String?   
+}
+
+model Tartan {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user       User      @relation(fields:[userId], references:[id]) 
+  userId     String    @db.ObjectId @unique
+  pattern    String?
+  hashed     String? 
+  url        String? 
+}
+
+// Players and game models
+
+enum AccountType {
+  PREMIUM
+  COMMON
+}
+
+model TelegramAccount {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+
+  username              String                @map("user_name")
+  tgId                  String                @map("tg_id") @unique
+  createdAt             DateTime?             @default(now()) @map("created_at")
+  isPremium             Boolean               @map("is_premium")
+  imageUrl              String?               @map("image_url")
+
+  firstName             String?               @map("first_name")
+  lastName              String?               @map("last_name")
+
+  player                Player?
+
+  @@map("tg_account")
+}
+
+
+model Player {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+
+  createdAt             DateTime?             @default(now()) @map("created_at")
+  active                Boolean               @default(true) @map("active")
+
+  lastLogin             DateTime?             @map("last_login")
+
+  token                 PlayerTokens?
+
+  invitedById           String?               @db.ObjectId @map("invited_by_id")
+  invitedBy             Player?               @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invitations           Player[]              @relation("UserInvitations")
+  referralCode          String                @unique
+
+  tasks                 TaskInstance[]
+  taskDatetime          DateTime?             @map("task_datetime")
+
+  unsafe                Boolean               @default(false)
+
+  tgAccount             TelegramAccount       @relation(fields: [tgAccountId], references: [id])
+  tgAccountId           String                @unique @map("tg_account_id") @db.ObjectId
+  
+
+  @@map("player")
+}
+
+model Referral {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  referrerId    String   @db.ObjectId
+  referredId    String   @db.ObjectId
+  createdAt     DateTime @default(now())
+
+  ReferralDay ReferralDay[]
+  @@map("refferal")
+}
+
+model ReferralDay {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  referralId       String   @db.ObjectId
+  day              DateTime @map("day")  // Дата, когда произошла регистрация (используем московское время)
+  registrations    Int      @default(1) // Количество регистраций в этот день
+  createdAt        DateTime @default(now())
+
+  referral         Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@map("referral_day")
+}
+
+model PlayerTokens {
+    id           String    @id @default(auto()) @map("_id") @db.ObjectId
+    accessToken  String?
+    refreshToken String?    
+    createdAt    DateTime? @default(now()) @map("created_at")
+    updatedAt    DateTime? @updatedAt @map("updated_at")
+    player       Player    @relation(fields: [playerId], references: [id])
+    playerId     String    @db.ObjectId @unique
+
+    @@map("player_tokens")
+}
+
+
+
+
+
+model Task {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String?
+  type         TaskType
+  baunty       Int?
+  bonus        Int?
+  target       Int?
+  content      String?
+  navigate     String?
+  expiresAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  isDaily      Boolean 
+  playerTasks  TaskInstance[]
+
+   @@map("task")
+}
+
+model TaskInstance {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  templateTask    Task?           @relation(fields: [templateTaskId], references: [id])
+  templateTaskId  String?         @db.ObjectId
+  player          Player?         @relation(fields: [playerId], references: [id])
+  playerId        String?         @db.ObjectId
+  status          TaskStatus      @default(PENDING)
+  progress        Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  finishedAt      DateTime?
+
+  @@map("task_on_player")
+}
+
+enum TaskType {
+  SUBSCRIBE_CHANNEL
+  INVITE_COUNT
+  INVITE_PREMIUM_COUNT
+  INVITE_EVERY_DAY
+  DAILY_BAUNTY
+  DAILY_MINIGAME
+  TAPS_COUNT
+  DAILY_GAMEPLAY_ACTION
+  DAILY_TON_CHECKIN
+  CONNECT_WALLET
+  MAKE_TEST_TRANSACTION
+  BYBIT_REGISTRATION
+  BYBIT_DEPOSIT
+  BYBIT_KYC
+  OKX_REGISTRATION
+  OKX_DEPOSIT
+  OKX_KYC
+  SHARE_STORY
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  COMPLETED
+}
+
+
+
+
