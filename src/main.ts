@@ -5,7 +5,11 @@ import { NestFastifyApplication, FastifyAdapter } from '@nestjs/platform-fastify
 import { WinstonModule } from "nest-winston"
 
 import { logger } from './logger/winston.logger'
-import { initializeCookies, initializeCors, initializeSession } from './bootstrap'
+import { 
+  initializeCookies, 
+  initializeCors, 
+  initializeSession, 
+  initializeSwagger } from './bootstrap'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,7 +27,7 @@ async function bootstrap() {
   /* installation of auxiliary modules */
   initializeCors(app)
   //initializeStaticAssets(app)
-  //initializeSwagger(app)
+  initializeSwagger(app)
 
   //initializeSentry(app)
 
