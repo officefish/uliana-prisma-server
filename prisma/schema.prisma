@@ -224,10 +224,6 @@ model PlayerTokens {
     @@map("player_tokens")
 }
 
-
-
-
-
 model Task {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   title        String
@@ -259,7 +255,7 @@ model TaskInstance {
   updatedAt       DateTime        @updatedAt
   finishedAt      DateTime?
 
-  @@map("task_on_player")
+  @@map("task_instance")
 }
 
 enum TaskType {

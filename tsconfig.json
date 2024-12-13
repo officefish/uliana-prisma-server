@@ -34,6 +34,11 @@
       "esnext"
     ],
     "allowJs": true,
-    "strict": false,
-  }
+    "strict": false
+  },
+  "include": [
+    "./src/**/*.ts",   
+    "./@types/**/*.d.ts", 
+    "src/bootstrap/internal/new-relic/newrelic.js",
+  ]
 }
