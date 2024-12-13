@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
+import { AppModule } from "./app/app.module"
 import { NestFastifyApplication, FastifyAdapter } from '@nestjs/platform-fastify'
 
 import { WinstonModule } from "nest-winston"
 
 import { logger } from './logger/winston.logger'
+import { initializeCookies, initializeCors, initializeSession } from './bootstrap'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -20,14 +21,14 @@ async function bootstrap() {
   app.setGlobalPrefix('/api/v1')
 
   /* installation of auxiliary modules */
-  //initializeCors(app)
+  initializeCors(app)
   //initializeStaticAssets(app)
   //initializeSwagger(app)
 
   //initializeSentry(app)
 
-  //initializeCookies(app)
-  //initializeSession(app)
+  initializeCookies(app)
+  initializeSession(app)
 
   //initializeNewRelic(app)
 
