@@ -187,9 +187,35 @@ model Player {
 
   tgAccount             TelegramAccount       @relation(fields: [tgAccountId], references: [id])
   tgAccountId           String                @unique @map("tg_account_id") @db.ObjectId
+
+  balance               PlayerBalance?        @relation(fields: [balanceId], references: [id])
+  balanceId             String?               @unique @map("balance_id") @db.ObjectId
   
 
   @@map("player")
+}
+
+model PlayerBalance {
+  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  player                Player?
+
+  coins                 Int                  @default(999)  
+  gems                  Int                  @default(9)
+  crystals              Int                  @default(3)  
+
+  energyLatest          Int                   @default(333) @map("energy_latest")
+  energyMax             Int                   @default(333) @map("energy_max")
+  // Скорость восстановления энергии в единицах/секундах
+  recoveryRate          Int                   @default(1) @map("recovery_rate")
+  // Время последнего обновления энергии
+  lastEnergyUpdate      DateTime?             @default(now()) @map("last_energy_update")         
+
+  lastGemReady          DateTime?
+  lastCrystalReady      DateTime?
+
+  playerTgId            String                @map("player_tg_id")
+  
+  @@map("balance")
 }
 
 model Referral {
