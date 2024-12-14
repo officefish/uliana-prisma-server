@@ -1,10 +1,10 @@
 import { TelegramUserType } from '@/helpers/types/telegram-user.type';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { AppConfigService } from '../config/config.service';
 import * as qs from 'querystring'; // Use querystring to easily parse URL-encoded strings
 import { HttpService } from '@nestjs/axios';
-import { Bot, Context } from 'grammy'
+import { Bot, Context, InlineKeyboard } from 'grammy'
 import { InjectBot } from '@grammyjs/nestjs'
 import { lastValueFrom } from 'rxjs';
 import { PreCheckoutQuery } from 'grammy/types';
@@ -12,6 +12,9 @@ import { PreCheckoutQuery } from 'grammy/types';
 
 @Injectable()
 export class TelegramService {
+
+    private readonly logger = new Logger(TelegramService.name)
+
     constructor(
         private readonly config: AppConfigService,
         private readonly httpService: HttpService,
@@ -33,14 +36,61 @@ export class TelegramService {
           //console.log('PreCheckoutQuery:', query);
         });
 
+        // this.bot.command('start', (ctx) => {
+        //   ctx.reply('Нажмите на кнопку, чтобы открыть Web App:', {
+            
+        //     reply_markup: new InlineKeyboard().url(
+        //       'Запустить Web App',
+        //       't.me/uliana_prisma_bot/uliana_prisma', // URL Web Telegram или вашего приложения
+        //     ),
+        //   });
+
+        //   this.logger.log("But start command listener added")
+        // });
+
         this.bot.catch(async (error) => {
           console.error('Произошла ошибка!', error);
         });
+
+        this.bot.start()
       }
 
   getTelegramApiUrl() {
     return `https://api.telegram.org/bot${this.config.getTelegramBotToken()}`
   }     
+
+  // Метод для настройки кнопки WebApp
+  async setMenuButton(chatId: number) : Promise<boolean> {
+    const url = `${this.getTelegramApiUrl()}/setChatMenuButton`;
+    const data = {
+      "chat_id": chatId,
+      "menu_button": {
+          "type": "web_app",
+          "text": "Магический шар",
+          "web_app": {
+              "url": "https://t.me/uliana_prisma_bot/uliana_prisma"
+          }
+      }
+    }
+    try {
+      const response = await lastValueFrom(this.httpService.post(url, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }));
+      const responseData = response.data;
+
+      this.logger.log('Launch button success installed')
+      this.logger.log(responseData)
+      return true
+
+    } catch (error) {
+      this.logger.error('Error checking subscription status:', error);
+      return false
+    } 
+
+  }
+
       
   validateInitData(initData: string): boolean {
     const token = this.config.getTelegramBotToken();
@@ -101,12 +151,12 @@ export class TelegramService {
     }
   }
 
-  async byKeysForStars(numKeys: number) {
-    const title = "Test Product";
-    const description = "Test description";
+  async byGemsForStars(numKeys: number) {
+    const title = "Buy gems for starts";
+    const description = "This gems needs to do some magic!";
     const payload = "{}";
     const currency = "XTR";
-    const prices = [{ amount: numKeys, label: "Test Product" }];
+    const prices = [{ amount: numKeys, label: "Magic gems" }];
   
 
     // try {

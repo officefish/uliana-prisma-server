@@ -22,4 +22,4 @@ scp -r D:/nest/dragon-farm-server/ssl/ root@63.250.60.63:/etc/ssl/cert
 sudo systemctl restart kubiki.service
 
 # copy logs
-scp root@63.250.60.63:/var/www/toncase.fun/logs/* D:/logs/dragon-farm
+scp root@82.148.18.82:/var/www/kubiki.io/logs/* C:/logs/uliana-prisma

@@ -4,6 +4,7 @@ import { HttpModule } from '@nestjs/axios';  // Импортируем HttpModul
 import { NestjsGrammyModule } from '@grammyjs/nestjs'
 import { AppConfigModule } from '../config/config.module';
 import { AppConfigService } from '../config/config.service';
+import { TelegramController } from './telegram,controller';
 
 
 @Module({
@@ -14,7 +15,9 @@ import { AppConfigService } from '../config/config.service';
           token: process.env.TELEGRAM_BOT_TOKEN,
       }),
       ],
-  providers: [TelegramService, AppConfigService],
-  exports: [TelegramService],
+  
+    controllers: [TelegramController],
+    providers: [TelegramService, AppConfigService],
+    exports: [TelegramService],
 })
 export class TelegramModule {}

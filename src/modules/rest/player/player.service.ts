@@ -36,9 +36,7 @@ export class PlayerService {
         where: { tgId }
     })
     if (!account) {
-        const msg = `Player with tgId: ${tgId} not found.`
-        this.logger.error(new Error(msg));
-        throw new NotFoundException(msg);
+       return null
       }
 
     const player = await this.prisma.player.findUnique({ 
@@ -50,9 +48,7 @@ export class PlayerService {
         }
     })
     if (!player) {
-      const msg = `Player with tgId: ${tgId} not found.`
-      this.logger.error(new Error(msg));
-      throw new NotFoundException(msg);
+      return null
     }
     return player
   }

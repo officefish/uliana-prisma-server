@@ -4,6 +4,7 @@ import { AppConfigModule } from 'src/modules/config/config.module';
 import { PingPongModule } from '@/modules/rest/ping-pong/ping-pong.module';
 import { PlayerModule } from '@/modules/rest/player/player.module';
 import { AuthModule } from '@/modules/rest/auth/auth.module';
+import { ForStarsShopModule } from '@/modules/rest/for-stars-shop/for-stars-shop.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { AuthModule } from '@/modules/rest/auth/auth.module';
     AppConfigModule,
     PingPongModule,
     PlayerModule,
-    AuthModule
+    AuthModule,
+    ForStarsShopModule
   ],
   controllers: [],
   providers: [],
