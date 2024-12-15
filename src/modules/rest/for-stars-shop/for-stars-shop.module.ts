@@ -10,12 +10,10 @@ import { AppConfigModule } from '../../config/config.module'
 import { AppConfigService } from '../../config/config.service'
 import { HttpModule } from '@nestjs/axios'
 import { PlayerService } from '../player/player.service'
-//import { ShopService } from './shop.service'
 
 @Module({
   imports: [
    PrismaModule,
-   PlayerModule,
    TokenModule,
    AppConfigModule,
    TelegramModule,
