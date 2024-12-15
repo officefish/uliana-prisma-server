@@ -23,6 +23,7 @@ export class PlayerController {
 
     @UseGuards(PlayerGuard)
     @Get("/by/tgId")
+    @Player()
     @ApiOperation({ summary: 'Get player model with telegram account inside' })
     @ApiResponse({ status: 200, description: 'Success response with Ok status gives player with tg account' })
     async getPlayerByTgId(

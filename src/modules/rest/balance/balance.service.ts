@@ -11,8 +11,23 @@ export class BalanceService {
   constructor(private prisma: PrismaService) {}
 
   
-  async getBalanceByTgId(tgId) {
-    return this.prisma.playerBalance.findUnique({ where: tgId })
+  async getBalanceByTgId(tgId: string) {
+
+    const account = await this.prisma.telegramAccount.findUnique({ where: { tgId } })
+    if (!account) {
+      return null
+    }
+
+    const player = await this.prisma.player.findUnique({ where: { tgAccountId: account.id }})
+    if (!player) {
+      return null
+    }
+
+    if (!player.balanceId) {
+      return null
+    }
+
+    return this.prisma.playerBalance.findUnique({ where: { id: player.balanceId } })
   }
 
   async createBalanceForPlayer(player: Player) {
@@ -34,6 +49,18 @@ export class BalanceService {
         },
       });
       return balance;
+  }
+
+  async addGems(tgId, gems: number) {
+    const balance = await this.getBalanceByTgId(tgId)
+    if (!balance) {
+      throw new NotFoundException('Player balance not found')
+    }
+    const updatedBalance = await this.prisma.playerBalance.update({
+      where: { id: balance.id },
+      data: { gems: balance.gems + gems },
+    });
+    return updatedBalance;
   }
 
 }

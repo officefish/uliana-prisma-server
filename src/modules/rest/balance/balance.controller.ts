@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify'; // Импорт FastifyRequest
 
 import {
@@ -9,6 +9,7 @@ import {
 import { PlayerGuard } from '../player/guards/player.guard';
 import { PlayerService } from '../player/player.service';
 import { BalanceService } from './balance.service';
+import { Player } from '@/common/decorators';
 
 @ApiTags('balance')
 @Controller('balance')
@@ -21,6 +22,7 @@ export class BalanceController {
         private readonly playerService: PlayerService
       ) {}
 
+    @Player()
     @UseGuards(PlayerGuard)
     @Get()
     @ApiOperation({ summary: 'Get player balance model by tgId' })
@@ -29,6 +31,13 @@ export class BalanceController {
         @Req() req: FastifyRequest,
         @Res() reply: FastifyReply
     ) {
+
+        if (!req.currentUser?.tgId) {
+            const msg = `No tgId provided in jwt token`
+            this.logger.error(msg)
+            throw new NotFoundException(msg)
+        }
+
         const { tgId } = req.currentUser
         this.logger.log(`Get player data with tgId: ${tgId} using jwt token`);
 
@@ -43,6 +52,42 @@ export class BalanceController {
 
         if (!balance) {
             balance = await this.balanceService.createBalanceForPlayer(player)
+        }
+
+        return reply.type('application/json').send({balance});
+    }
+
+    @Player()
+    @UseGuards(PlayerGuard)
+    @Post("buy/gems")
+    @ApiOperation({ summary: 'Buy new gems if player is authorized' })
+    @ApiResponse({ status: 200, description: 'Success response with Ok status gives player balance' })
+    async addGems(
+        @Req() req: FastifyRequest,
+        @Res() reply: FastifyReply,
+        @Body() body: { numGems: number }
+    ) {
+
+        if (!req.currentUser?.tgId) {
+            const msg = `No tgId provided in jwt token`
+            this.logger.error(msg)
+            throw new NotFoundException(msg)
+        }
+
+        const { tgId } = req.currentUser
+        this.logger.log(`Player with tgId: ${tgId} trying buy ${body.numGems} gems`);
+
+        const player = await this.playerService.getPlayerByTgId(tgId)
+        if (!player) {
+            const msg = `No player found with tgId: ${tgId}`
+            this.logger.error(msg)
+            throw new NotFoundException(msg)
+        }
+
+        const balance = await this.balanceService.addGems(tgId, body.numGems)
+
+        if (balance) {
+            this.logger.log(`Player with tgId: ${tgId} successfuly bought ${body.numGems} gems`);
         }
 
         return reply.type('application/json').send({balance});

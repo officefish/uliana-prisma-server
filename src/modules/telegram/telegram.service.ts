@@ -62,15 +62,17 @@ export class TelegramService {
   // Метод для настройки кнопки WebApp
   async setMenuButton(chatId: number) : Promise<boolean> {
     const url = `${this.getTelegramApiUrl()}/setChatMenuButton`;
-    const data = {
-      "chat_id": chatId,
-      "menu_button": {
-          "type": "web_app",
-          "text": "Магический шар",
-          "web_app": {
-              "url": "https://t.me/uliana_prisma_bot/uliana_prisma"
-          }
+    const menuBtnStr = JSON.stringify({
+      type: 'web_app',
+      text: 'Магический шар',
+      web_app: {
+          url: 'https://t.me/uliana_prisma_bot/uliana_prisma'
       }
+    })
+
+    const data = {
+      chat_id: chatId,
+      menu_button: menuBtnStr 
     }
     try {
       const response = await lastValueFrom(this.httpService.post(url, data, {
@@ -82,6 +84,61 @@ export class TelegramService {
 
       this.logger.log('Launch button success installed')
       this.logger.log(responseData)
+      return true
+
+    } catch (error) {
+      this.logger.error('Error checking subscription status:', error);
+      return false
+    } 
+
+  }
+
+  async setMenuButtonWithUrl(chat_id: number, text: string, url: string) : Promise<boolean> {
+    const botUrl = `${this.getTelegramApiUrl()}/setChatMenuButton`;
+    const data = {
+      chat_id,
+      menu_button: JSON.stringify({
+        type: 'web_app',
+        text,
+        web_app: { url }
+    })}
+    try {
+      const response = await lastValueFrom(this.httpService.post(botUrl, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }));
+      const responseData = response.data;
+
+      this.logger.log('Launch button success installed')
+      this.logger.log(responseData)
+      return true
+
+    } catch (error) {
+      this.logger.error('Error checking subscription status:', error);
+      return false
+    } 
+
+  }
+
+  async setMenuButtonWithBot(chatId: number) : Promise<boolean> {
+    const url = `${this.getTelegramApiUrl()}/setChatMenuButton`;
+    const menuBtnStr = JSON.stringify({
+      type: 'web_app',
+      text: 'Магический шар',
+      web_app: {
+          url: "https://t.me/uliana_prisma_bot/uliana_prisma"
+      }
+    }) as any
+
+    const data = {
+      "chat_id": chatId,
+      "menu_button": menuBtnStr 
+    }
+    try {
+      //this.bot.raw.setChatMenuButton(data);
+      // this.logger.log('Launch button success installed')
+      // this.logger.log(responseData)
       return true
 
     } catch (error) {
