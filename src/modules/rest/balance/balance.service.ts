@@ -51,7 +51,7 @@ export class BalanceService {
       return balance;
   }
 
-  async addGems(tgId, gems: number) {
+  async addGemsByTgId(tgId, gems: number) {
     const balance = await this.getBalanceByTgId(tgId)
     if (!balance) {
       throw new NotFoundException('Player balance not found')
@@ -59,6 +59,18 @@ export class BalanceService {
     const updatedBalance = await this.prisma.playerBalance.update({
       where: { id: balance.id },
       data: { gems: balance.gems + gems },
+    });
+    return updatedBalance;
+  }
+
+  async removeGemsByTgId(tgId: string, gems: number) {
+    const balance = await this.getBalanceByTgId(tgId)
+    if (!balance) {
+      throw new NotFoundException('Player balance not found')
+    }
+    const updatedBalance = await this.prisma.playerBalance.update({
+      where: { id: balance.id },
+      data: { gems: balance.gems - gems },
     });
     return updatedBalance;
   }

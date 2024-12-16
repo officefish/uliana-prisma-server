@@ -84,7 +84,7 @@ export class BalanceController {
             throw new NotFoundException(msg)
         }
 
-        const balance = await this.balanceService.addGems(tgId, body.numGems)
+        const balance = await this.balanceService.addGemsByTgId(tgId, body.numGems)
 
         if (balance) {
             this.logger.log(`Player with tgId: ${tgId} successfuly bought ${body.numGems} gems`);
