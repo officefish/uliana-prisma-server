@@ -209,8 +209,8 @@ model PlayerBalance {
   // Время последнего обновления энергии
   lastEnergyUpdate DateTime? @default(now()) @map("last_energy_update")
 
-  lastGemReady     DateTime?
-  lastCrystalReady DateTime?
+  lastGemReady     DateTime? @default(now())  @map("last_gem_ready")
+  lastCrystalReady DateTime? @default(now())  @map("last_crystal_ready")
 
   playerTgId String @map("player_tg_id")
 

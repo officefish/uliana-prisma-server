@@ -140,10 +140,18 @@ export class BalanceController {
 
         const now = new Date();
 
+        if (!balance.lastGemReady) {
+            balance = await this.balanceService.incrementGemsByTimer(balance)
+        }
+
         const lastGemReady = balance.lastGemReady ? balance.lastGemReady.getTime() : 0;
         if (now.getTime() - lastGemReady > this.balanceService.GEM_GENERATION_INTERVAL) {
             balance = await this.balanceService.incrementGemsByTimer(balance)
         }
+
+        // if (!balance.lastCrystalReady) {
+        //     balance = await this.balanceService.incrementCrystalsByTimer(balance)
+        // }
 
         // const lastCrystalReady = balance.lastCrystalReady ? balance.lastCrystalReady.getTime() : 0;
         // if (now.getTime() - lastCrystalReady > this.balanceService.CRYSTAL_GENERATION_INTERVAL) {
