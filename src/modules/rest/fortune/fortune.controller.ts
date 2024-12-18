@@ -97,13 +97,22 @@ export class FortuneController {
     @ApiOperation({ summary: 'Get player fortunes' })
     @ApiResponse({ status: 200, description: 'Success response with Ok status gives \"pong\" string as response' })
     getAllPlayerFortunes() {
-        return [{
+        return [
+        {
             key: "bawdry",
             price: { 
                 value: 1,
                 type: 'GEMS'
             }
-        }]
-    }
+        },
+        {
+            key: "lantern",
+            price: { 
+                value: 1,
+                type: 'GEMS'
+            }
+        },
+    
+    ]}
 }
 
