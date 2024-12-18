@@ -12,6 +12,7 @@ import { FastifyRequest, FastifyReply } from 'fastify'; // Импорт FastifyR
 import { PrismaService } from '@/modules/prisma/prisma.service';
 import { PlayerService } from '../player/player.service';
 import { BalanceService } from '../balance/balance.service';
+import { ActionGameplayService } from '../action/action.gameplay.service';
 
 
 @ApiTags('fortune')
@@ -27,6 +28,7 @@ export class FortuneController {
         private readonly prisma: PrismaService, // Ensure proper readonly
         private readonly playerService: PlayerService, // Ensure proper readonly
         private readonly balanceService: BalanceService, // Ensure proper readonly
+        private readonly gameplay: ActionGameplayService, // Ensure proper readonly
     ) {}
 
     @Get("/bawdry")
@@ -73,7 +75,8 @@ export class FortuneController {
 
         const bawdry = await this.fortuneService.getRandomBawdry()
 
-        const updatedBalance = await this.balanceService.removeGemsByTgId(tgId, this.BAWDRY_PRICE);
+        const actionInstance = await this.gameplay.createBawdryActionInstance(player.id);
+        const updatedBalance = await this.balanceService.removeGemsByTgId(tgId, 1);
 
         if (!updatedBalance) {
             const msg = `Insufficient gems to get bawdry.  Player with tgId: ${tgId} has ${balance.gems} gems.`
@@ -85,7 +88,7 @@ export class FortuneController {
             this.logger.debug(`Success getting bawdry for tgId: ${req.currentUser?.tgId}`)
         }
 
-        return reply.type('application/json').send({bawdry, balance: updatedBalance  });
+        return reply.type('application/json').send({bawdry, balance: updatedBalance, actionInstance  });
     }
 
     @Get("/all")

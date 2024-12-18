@@ -14,24 +14,23 @@ datasource db {
 // Admin panel users
 
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  email         String   @unique
-  name          String?
-  password      String
-  secret        String?
-  salt          String
-  verified      Boolean
-  role          Role     @default(GUEST)
-  sessions      Session[]
-  basicInfo     BasicInfo?
-  quote         Quote?
-  domain        Domain?
-  avatar        Avatar? 
-  cover         Cover?
-  tartan        Tartan?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     @unique
+  name      String?
+  password  String
+  secret    String?
+  salt      String
+  verified  Boolean
+  role      Role       @default(GUEST)
+  sessions  Session[]
+  basicInfo BasicInfo?
+  quote     Quote?
+  domain    Domain?
+  avatar    Avatar?
+  cover     Cover?
+  tartan    Tartan?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 enum Role {
@@ -43,43 +42,43 @@ enum Role {
 }
 
 model Session {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  token       String    @unique
-  valid       Boolean   @default(false)
-  userAgent   String?
-  language    String?
-  referer     String?
-  isMobile    Boolean?
-  user        User      @relation(fields:[userId], references:[id])
-  userId      String    @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  token     String   @unique
+  valid     Boolean  @default(false)
+  userAgent String?
+  language  String?
+  referer   String?
+  isMobile  Boolean?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
 }
 
 // BasicInfo
 
 model FullName {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  firstName       String?
-  lastName        String?
-  basicInfo       BasicInfo @relation(fields:[basicInfoId], references:[id]) 
-  basicInfoId     String    @db.ObjectId @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  firstName   String?
+  lastName    String?
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+  basicInfoId String    @unique @db.ObjectId
 }
 
 model Career {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   company     String?
   role        String?
-  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
-  basicInfoId String    @db.ObjectId @unique
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+  basicInfoId String    @unique @db.ObjectId
 }
 
 model Education {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   university  String?
   faculty     String?
-  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
-  basicInfoId String    @db.ObjectId @unique
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+  basicInfoId String    @unique @db.ObjectId
 }
 
 model Location {
@@ -87,55 +86,55 @@ model Location {
   country     String?
   region      String?
   timeZone    String?
-  basicInfo   BasicInfo @relation(fields:[basicInfoId], references:[id])
-  basicInfoId String    @db.ObjectId @unique
+  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
+  basicInfoId String    @unique @db.ObjectId
 }
 
 model BasicInfo {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  fullName   FullName?
-  career     Career?
-  education  Education?
-  location   Location?
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique @db.ObjectId
+  fullName  FullName?
+  career    Career?
+  education Education?
+  location  Location?
 }
 
 model Quote {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  content    String?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String  @unique @db.ObjectId
+  content String?
 }
 
 model Domain {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  value      String?   @unique
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  user   User    @relation(fields: [userId], references: [id])
+  userId String  @unique @db.ObjectId
+  value  String? @unique
 }
 
 model Avatar {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  url        String?   
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  user   User    @relation(fields: [userId], references: [id])
+  userId String  @unique @db.ObjectId
+  url    String?
 }
 
 model Cover {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  url        String?   
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  user   User    @relation(fields: [userId], references: [id])
+  userId String  @unique @db.ObjectId
+  url    String?
 }
 
 model Tartan {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  user       User      @relation(fields:[userId], references:[id]) 
-  userId     String    @db.ObjectId @unique
-  pattern    String?
-  hashed     String? 
-  url        String? 
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String  @unique @db.ObjectId
+  pattern String?
+  hashed  String?
+  url     String?
 }
 
 // Players and game models
@@ -146,142 +145,143 @@ enum AccountType {
 }
 
 model TelegramAccount {
-  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  username              String                @map("user_name")
-  tgId                  String                @map("tg_id") @unique
-  createdAt             DateTime?             @default(now()) @map("created_at")
-  isPremium             Boolean               @map("is_premium")
-  imageUrl              String?               @map("image_url")
+  username  String    @map("user_name")
+  tgId      String    @unique @map("tg_id")
+  createdAt DateTime? @default(now()) @map("created_at")
+  isPremium Boolean   @map("is_premium")
+  imageUrl  String?   @map("image_url")
 
-  firstName             String?               @map("first_name")
-  lastName              String?               @map("last_name")
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
 
-  player                Player?
+  player Player?
 
   @@map("tg_account")
 }
 
-
 model Player {
-  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  createdAt             DateTime?             @default(now()) @map("created_at")
-  active                Boolean               @default(true) @map("active")
+  createdAt DateTime? @default(now()) @map("created_at")
+  active    Boolean   @default(true) @map("active")
 
-  lastLogin             DateTime?             @map("last_login")
+  lastLogin DateTime? @map("last_login")
 
-  token                 PlayerTokens?
+  token PlayerTokens?
 
-  invitedById           String?               @db.ObjectId @map("invited_by_id")
-  invitedBy             Player?               @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  invitations           Player[]              @relation("UserInvitations")
-  referralCode          String                @unique
-  referrerRewarded      Boolean               @default(false)
+  invitedById      String?  @map("invited_by_id") @db.ObjectId
+  invitedBy        Player?  @relation("UserInvitations", fields: [invitedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invitations      Player[] @relation("UserInvitations")
+  referralCode     String   @unique
+  referrerRewarded Boolean  @default(false)
 
+  tasks        TaskInstance[]
+  taskDatetime DateTime?      @map("task_datetime")
 
-  tasks                 TaskInstance[]
-  taskDatetime          DateTime?             @map("task_datetime")
+  unsafe Boolean @default(false)
 
-  unsafe                Boolean               @default(false)
+  tgAccount   TelegramAccount @relation(fields: [tgAccountId], references: [id])
+  tgAccountId String          @unique @map("tg_account_id") @db.ObjectId
 
-  tgAccount             TelegramAccount       @relation(fields: [tgAccountId], references: [id])
-  tgAccountId           String                @unique @map("tg_account_id") @db.ObjectId
+  balance   PlayerBalance? @relation(fields: [balanceId], references: [id])
+  balanceId String?        @unique @map("balance_id") @db.ObjectId
 
-  balance               PlayerBalance?        @relation(fields: [balanceId], references: [id])
-  balanceId             String?               @unique @map("balance_id") @db.ObjectId
-  
+  actions  ActionInstance[] @relation("PlayerActions") // Все действия, совершенные игроком
+  received ActionInstance[] @relation("TargetActions") // Все действия, направленные на игрока
 
   @@map("player")
 }
 
 model PlayerBalance {
-  id                    String                @id @default(auto()) @map("_id") @db.ObjectId
-  player                Player?
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  player Player?
 
-  coins                 Int                  @default(999)  
-  gems                  Int                  @default(9)
-  crystals              Int                  @default(3)  
+  coins    Int @default(999)
+  gems     Int @default(9)
+  crystals Int @default(3)
 
-  energyLatest          Int                   @default(333) @map("energy_latest")
-  energyMax             Int                   @default(333) @map("energy_max")
+  energyLatest     Int       @default(333) @map("energy_latest")
+  energyMax        Int       @default(333) @map("energy_max")
   // Скорость восстановления энергии в единицах/секундах
-  recoveryRate          Int                   @default(1) @map("recovery_rate")
+  recoveryRate     Int       @default(1) @map("recovery_rate")
   // Время последнего обновления энергии
-  lastEnergyUpdate      DateTime?             @default(now()) @map("last_energy_update")         
+  lastEnergyUpdate DateTime? @default(now()) @map("last_energy_update")
 
-  lastGemReady          DateTime?
-  lastCrystalReady      DateTime?
+  lastGemReady     DateTime?
+  lastCrystalReady DateTime?
 
-  playerTgId            String                @map("player_tg_id")
-  
+  playerTgId String @map("player_tg_id")
+
   @@map("balance")
 }
 
 model Referral {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  referrerId    String   @db.ObjectId
-  referredId    String   @db.ObjectId
-  createdAt     DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  referrerId String   @db.ObjectId
+  referredId String   @db.ObjectId
+  createdAt  DateTime @default(now())
 
   ReferralDay ReferralDay[]
+
   @@map("refferal")
 }
 
 model ReferralDay {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  referralId       String   @db.ObjectId
-  day              DateTime @map("day")  // Дата, когда произошла регистрация (используем московское время)
-  registrations    Int      @default(1) // Количество регистраций в этот день
-  createdAt        DateTime @default(now())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  referralId    String   @db.ObjectId
+  day           DateTime @map("day") // Дата, когда произошла регистрация (используем московское время)
+  registrations Int      @default(1) // Количество регистраций в этот день
+  createdAt     DateTime @default(now())
 
-  referral         Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  referral Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
 
   @@map("referral_day")
 }
 
 model PlayerTokens {
-    id           String    @id @default(auto()) @map("_id") @db.ObjectId
-    accessToken  String?
-    refreshToken String?    
-    createdAt    DateTime? @default(now()) @map("created_at")
-    updatedAt    DateTime? @updatedAt @map("updated_at")
-    player       Player    @relation(fields: [playerId], references: [id])
-    playerId     String    @db.ObjectId @unique
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime? @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
+  player       Player    @relation(fields: [playerId], references: [id])
+  playerId     String    @unique @db.ObjectId
 
-    @@map("player_tokens")
+  @@map("player_tokens")
 }
 
 model Task {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  title        String
-  description  String?
-  type         TaskType
-  baunty       Int?
-  bonus        Int?
-  target       Int?
-  content      String?
-  navigate     String?
-  expiresAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  isDaily      Boolean 
-  playerTasks  TaskInstance[]
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  type        TaskType
+  baunty      Int?
+  bonus       Int?
+  target      Int?
+  content     String?
+  navigate    String?
+  expiresAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  isDaily     Boolean
+  playerTasks TaskInstance[]
 
-   @@map("task")
+  @@map("task")
 }
 
 model TaskInstance {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  templateTask    Task?           @relation(fields: [templateTaskId], references: [id])
-  templateTaskId  String?         @db.ObjectId
-  player          Player?         @relation(fields: [playerId], references: [id])
-  playerId        String?         @db.ObjectId
-  status          TaskStatus      @default(PENDING)
-  progress        Int             @default(0)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  finishedAt      DateTime?
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  templateTask   Task?      @relation(fields: [templateTaskId], references: [id])
+  templateTaskId String?    @db.ObjectId
+  player         Player?    @relation(fields: [playerId], references: [id])
+  playerId       String?    @db.ObjectId
+  status         TaskStatus @default(PENDING)
+  progress       Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  finishedAt     DateTime?
 
   @@map("task_instance")
 }
@@ -314,6 +314,80 @@ enum TaskStatus {
   COMPLETED
 }
 
+// Активные действия игрока
 
+model Action {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
+  price   ResourceCost? @relation(fields: [priceId], references: [id])
+  priceId String?       @db.ObjectId
 
+  effect   ResourceEffect? @relation(fields: [effectid], references: [id])
+  effectid String?         @db.ObjectId
+
+  type      ActionType
+  timestamp DateTime    @default(now())
+
+  instances ActionInstance[]
+}
+
+model ActionInstance {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  player   Player @relation("PlayerActions", fields: [playerId], references: [id]) // Инициатор действия
+  playerId String @db.ObjectId
+
+  target   Player? @relation("TargetActions", fields: [targetId], references: [id]) // Получатель действия (опционально)
+  targetId String? @db.ObjectId
+
+  template   Action @relation(fields: [templateId], references: [id])
+  templateId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+
+  uuid String
+
+  @@map("action")
+}
+
+enum ActionType {
+  FLIRT
+  BAWDRY
+  KINDNESS
+  ATTACK
+  HELP
+  TRADE
+}
+
+enum ResourceType {
+  SILVER
+  ENERGY
+  GEMS
+  CRYSTALS
+}
+
+enum EffectType {
+  INCREASING
+  DECREASING
+  SET
+}
+
+model ResourceCost {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  resource   ResourceType // Тип ресурса: серебро, энергия и т.д.
+  value      Int // Чистое значение
+  percentage Float? // Процентное значение (опционально)
+  Action     Action[]
+
+  @@map("resource_cost")
+}
+
+model ResourceEffect {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  resource   ResourceType // Тип ресурса: серебро, энергия и т.д.
+  effect     EffectType
+  value      Int // Чистое значение
+  percentage Float? // Процентное значение (опционально)
+  Action     Action[]
+
+  @@map("resource_effect")
+}

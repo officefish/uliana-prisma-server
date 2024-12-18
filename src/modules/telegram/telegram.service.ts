@@ -1,5 +1,5 @@
 import { TelegramUserType } from '@/helpers/types/telegram-user.type';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { AppConfigService } from '../config/config.service';
 import * as qs from 'querystring'; // Use querystring to easily parse URL-encoded strings
@@ -18,13 +18,13 @@ export class TelegramService {
     constructor(
         private readonly config: AppConfigService,
         private readonly httpService: HttpService,
-        @InjectBot() private readonly bot: Bot<Context>
+        @Inject('TELEGRAM_GRAMMY_BOT') private readonly bot: Bot<Context> 
       ) {
         this.setupListeners();
       }
 
       private setupListeners() {
-
+  
         this.bot.on('pre_checkout_query', async (ctx) => {
           //const query = ctx.callbackQuery; // используем callbackQuery для доступа к preCheckoutQuery
           

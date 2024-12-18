@@ -23,3 +23,6 @@ sudo systemctl restart kubiki.service
 
 # copy logs
 scp root@82.148.18.82:/var/www/kubiki.io/logs/* C:/log/uliana-prisma
+
+# get 10 gems to all players
+db.balance.updateMany({}, { $inc: { gems: 10 } });

@@ -12,7 +12,7 @@ import { PrismaService } from '@modules/prisma/prisma.service';
 export class FortuneService {
     private readonly constants: string[] = [
         'magpie', 'parrot','goat','hamster','koala','peacock','fox','ermine',
-        'hyena','pig','mosquito','monkey','panda','rooster','boar','crocodile',
+        'hyena','toad','owl','monkey','panda','rooster','boar','crocodile',
       ];
   
   private readonly logger = new Logger(FortuneService.name)  
