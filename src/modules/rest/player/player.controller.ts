@@ -41,20 +41,24 @@ export class PlayerController {
         return reply.type('application/json').send({player});
     }
 
-     // @UseGuards(PlayerGuard)
-    // @Get()
-    // @ApiOperation({ summary: 'Get single player model' })
-    // @ApiResponse({ status: 200, description: 'Success response single player model' })
-    // async getPlayer(
-    //     @Req() req: FastifyRequest,
-    //     @Res() reply: FastifyReply
-    // ) {
-    //     const { tgId } = req.currentUser
-    //     this.logger.log(`Get player data with tgId: ${tgId} using jwt token`);
-    
-    //     const player = await this.playerService.getPlayer(id)
-        
+    @UseGuards(PlayerGuard)
+    @Get("/actions/by/tgId")
+    @Player()
+    @ApiOperation({ summary: 'Get player model with telegram account inside' })
+    @ApiResponse({ status: 200, description: 'Success response with Ok status gives player with tg account' })
+    async getPlayerActionsByTgId(
+        @Req() req: FastifyRequest,
+        @Res() reply: FastifyReply
+    ) {
+        const { tgId } = req.currentUser
+        this.logger.log(`Get player data with tgId: ${tgId} using jwt token`);
 
-    //     return "player"
-    // }
+        const actions = await this.playerService.getPlayerActionsByTgId(tgId)
+        if (actions) {
+            this.logger.log(`Success getting player data with tgId: ${tgId} using jwt token`)
+        }
+
+        return reply.type('application/json').send(actions);
+    }
+
 }

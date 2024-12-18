@@ -7,6 +7,7 @@ import { PrismaService } from '@modules/prisma/prisma.service';
 import { Action, ActionInstance, ActionType, EffectType, Prisma, ResourceType } from '@prisma/client';
 import { CreateActionDto } from './dto/create-action.dto';
 import { ActionService } from './action.service';
+import { PlayerService } from '../player/player.service';
 
 //import { Player, TelegramAccount } from '@prisma/client';
 
@@ -17,7 +18,8 @@ export class ActionGameplayService {
 
   constructor(
     private prisma: PrismaService,
-    private actionService: ActionService
+    private actionService: ActionService,
+    private playerService: PlayerService
   ) {}
 
   /**
@@ -98,5 +100,6 @@ export class ActionGameplayService {
     return actionInstance;
   }
 }
+
 
 

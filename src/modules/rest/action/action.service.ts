@@ -78,6 +78,10 @@ export class ActionService {
       },
     });
   }
+
+  async deleteActionInstance(id: string) {
+    return this.prisma.actionInstance.delete({ where: { id } })
+  }
 }
 
 

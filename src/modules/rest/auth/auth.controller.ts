@@ -138,46 +138,34 @@ import {
       } as unknown as TelegramUnsafeInitDataDto
   
        //const referralCode = command.split('=')[1]
-      if (!command.startsWith("referrerId=")) {
-        const auth = await this.authService.registerOrLogin(dto, false);
-        if (auth) {
-          this.logger.log(`Player with tgId: ${userData.id} successfully registered or login. But no reference to the referrer found.`);
-          this.logger.log(`Player data: ${JSON.stringify(auth)}`)
-        } 
+      if (command && command.startsWith("referrerId=")) {
+       
+        const auth = this.authService.registerOrLoginWithReferrer(
+          dto,
+          false,
+          command
+        )
+        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        return auth
+      }
+
+      if (command && command.startsWith("action=")) {
+       
+        const auth = this.authService.registerOrLoginWithAction(
+          dto,
+          false,
+          command
+        )
+        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
         return auth
       }
   
-      const parsedCommand = this.authService.parseReferrerIdString(command)
-      const referralCode = parsedCommand?.uuid || null
-  
-      const response = await this.authService.registerOrLogin(dto, false);
-  
-      /* Если пользователь пытается зарегистрировать сам себя, то игнорируем эту попытку */
-      if (response.player.referralCode === referralCode) {
-        this.logger.warn(`Player with tgId: ${userData.id} triing refer himself.`);
-        this.logger.log(`Player data: ${JSON.stringify(response)}`)
-        return response
-      }
-  
-      /* Если пользователь уже зарегистрирова, то игнорируем попытку активации приглашения */
-      if (!response.isNew) {
-        this.logger.warn(`Player with tgId: ${userData.id} not new user.`);
-        this.logger.log(`Player data: ${JSON.stringify(response)}`)
-        return response
-      }
-  
-      const referrer = await this.referralService.findByReferralCode(referralCode);
-        if (referrer) {
-          await this.referralService.trackReferral(referrer.id, response.player.id);
-          await this.referralService.rewardReferrer(referrer.id);
-          let invitedBy = await this.authService.initReferrer(referralCode);
-          const playerWithReferrer = await this.authService.updateReferrer(response.player.id, invitedBy)
-          response.player = playerWithReferrer
-          this.logger.log(`Player with tgId: ${userData.id} now is refferal for user with tgId: ${referrer.tgAccount.tgId}.`);
-        }
-  
-      this.logger.log(`Player data: ${JSON.stringify(response)}`)
-      return response
+      const auth = await this.authService.registerOrLogin(dto, false);
+      if (auth) {
+        this.logger.log(`Player with tgId: ${userData.id} successfully registered or login. But no reference to the referrer found.`);
+        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+      } 
+      return auth
     }
   
     @Post('register-with-command/unsafe')
@@ -196,46 +184,34 @@ import {
         lastName: body.lastName || '',
       } as unknown as TelegramUnsafeInitDataDto
   
-      if (!command || !command.startsWith("referrerId=")) {
-        const auth = await this.authService.registerOrLogin(dto, true);
-        if (auth) {
-          this.logger.log(`Player with tgId: ${body.tgId} successfully registered or login. But no reference to the referrer found.`);
-        }
+      if (command && command.startsWith("referrerId=")) {
+        const auth = this.authService.registerOrLoginWithReferrer(
+          dto,
+          true,
+          command
+        )
+        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        return auth
+      }
+
+      if (command && command.startsWith("action=")) {
+       
+        const auth = this.authService.registerOrLoginWithAction(
+          dto,
+          true,
+          command
+        )
         this.logger.log(`Player data: ${JSON.stringify(auth)}`)
         return auth
       }
   
-      const parsedCommand = this.authService.parseReferrerIdString(command)
-      const referralCode = parsedCommand?.uuid || null
-      const response = await this.authService.registerOrLogin(
-        dto, 
-        true);
-  
-      /* Если пользователь пытается зарегистрировать сам себя, то игнорируем эту попытку */
-      if (response.player.referralCode === referralCode) {
-        this.logger.warn(`Player with tgId: ${body.tgId} triing refer himself.`);
-        this.logger.log(`Player data: ${JSON.stringify(response)}`)
-        return response
+
+      const auth = await this.authService.registerOrLogin(dto, true);
+      if (auth) {
+        this.logger.log(`Player with tgId: ${body.tgId} successfully registered or login. But no reference to the referrer found.`);
       }
-  
-      /* Если пользователь уже зарегистрирова, то игнорируем попытку активации приглашения */
-      if (!response.isNew) {
-        this.logger.warn(`Player with tgId: ${body.tgId} not new user.`);
-        this.logger.log(`Player data: ${JSON.stringify(response)}`)
-        return response
-      }
-  
-      const referrer = await this.referralService.findByReferralCode(referralCode);
-        if (referrer) {
-          await this.referralService.trackReferral(referrer.id, response.player.id);
-          await this.referralService.rewardReferrer(referrer.id);
-          let invitedBy = await this.authService.initReferrer(referralCode);
-          const playerWithReferrer = await this.authService.updateReferrer(response.player.id, invitedBy)
-          response.player = playerWithReferrer
-          this.logger.log(`Player with tgId: ${body.tgId} now is refferal for user with tgId: ${referrer.tgAccount.tgId}.`);
-        }
-      this.logger.log(`Player data: ${JSON.stringify(response)}`)
-      return response  
+      this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+      return auth
     }
   
     @Options('register')

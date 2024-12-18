@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid'; // Для генерации уникаль
 import { TelegramUnsafeInitDataDto } from './dto/telegram-initial.dto'
 import { PlayerService } from '../player/player.service'
 import { CreateTelegramAccountDto } from '../player/dto/player.dto'
+import { TelegramUserType } from '@/helpers/types/telegram-user.type'
 
     
   @Injectable()
@@ -219,5 +220,123 @@ import { CreateTelegramAccountDto } from '../player/dto/player.dto'
         }
     
     }
+
+    parseActionUUIDString(str) {
+      
+      // Разбиваем строку по знаку "="
+      const parts = str.split("=");
+      if (parts.length === 2) {
+          const action = parts[0];
+          const uuid = parts[1];
+
+          // Проверяем, является ли вторая часть валидным UUID
+          if (this.isValidUUID(uuid)) {
+              return {
+                  action,
+                  separator: "=",
+                  uuid: uuid
+              };
+          } else {
+            return null
+            //return "Ошибка: Неверный формат UUID.";
+          }
+      } else {
+        return null  
+        //return "Ошибка: Строка имеет неправильный формат.";
+      }
+  
+  }
+
+    async registerOrLoginWithReferrer(
+      dto: TelegramUnsafeInitDataDto,
+      unsafe: boolean, 
+      command: string
+    ) {
+      const parsedCommand = this.parseReferrerIdString(command)
+      const referralCode = parsedCommand?.uuid || null
+          
+      const response = await this.registerOrLogin(dto, unsafe);
+          
+      /* Если пользователь пытается зарегистрировать сам себя, то игнорируем эту попытку */
+      if (response.player.referralCode === referralCode) {
+        this.logger.warn(`Player with tgId: ${dto.tgId} triing refer himself.`);
+        this.logger.log(`Player data: ${JSON.stringify(response)}`)
+        return response
+      }
+          
+      /* Если пользователь уже зарегистрирова, то игнорируем попытку активации приглашения */
+      if (!response.isNew) {
+        this.logger.warn(`Player with tgId: ${dto.tgId} not new user.`);
+        this.logger.log(`Player data: ${JSON.stringify(response)}`)
+        return response
+      }
+          
+      const referrer = await this.referralService.findByReferralCode(referralCode);
+        
+      if (referrer) {
+        await this.referralService.trackReferral(referrer.id, response.player.id);
+        await this.referralService.rewardReferrer(referrer.id);
+        let invitedBy = await this.initReferrer(referralCode);
+        const playerWithReferrer = await this.updateReferrer(response.player.id, invitedBy)
+        response.player = playerWithReferrer
+        this.logger.log(`Player with tgId: ${dto.tgId} now is refferal for user with tgId: ${referrer.tgAccount.tgId}.`);
+      }
+
+      return response
+    }
+
+    async registerOrLoginWithAction(
+      dto: TelegramUnsafeInitDataDto,
+      unsafe: boolean, 
+      command: string
+    ) {
+      const parsedCommand = this.parseActionUUIDString(command)
+      const uuid = parsedCommand?.uuid || ''
+          
+      const auth = await this.registerOrLogin(dto, unsafe);
+      
+      /* Если пользователь пытается зарегистрировать сам себя, то игнорируем эту попытку */
+      const action = await this.prismaService.actionInstance.findUnique({
+        where: { uuid: uuid } 
+      })
+
+      if (!action) {
+        this.logger.warn("Action with UUID: " + uuid + " not found.")
+        return auth
+      }
+
+      const player = await this.playerService.getPlayerByTgId(String(dto.tgId))
+      
+      if (!player) {
+        this.logger.warn(`Player with tgId: ${dto.tgId} not found.`);
+        return auth
+      }
+      
+      if (action.playerId === player.id) {
+        this.logger.log(`Player with tgId: ${dto.tgId} trying to use action himself with no effect`);
+        return auth
+      }
+
+      const updateAction = await this.prismaService.actionInstance.update({
+        where: { id: action.id },
+        data: {
+          target: {
+            connect: { id: player.id }, // Устанавливаем связь с указанным targetId
+          },
+        },
+        include: {
+          template: true
+        }
+      })
+
+      if (updateAction) {
+        this.logger.log(`Player with tgId: ${dto.tgId} now is ${updateAction.template.type} action target`);
+        return auth
+      }
+
+      return auth
+
+    }
+       
   
   }

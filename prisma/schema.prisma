@@ -344,7 +344,7 @@ model ActionInstance {
 
   createdAt DateTime @default(now())
 
-  uuid String
+  uuid String @unique
 
   @@map("action")
 }

@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { ActionService } from './action.service';
 import { Prisma } from '@prisma/client';
 import { CreateActionDto } from './dto/create-action.dto';
 
-@Controller('actions')
+@Controller('action')
 export class ActionController {
   constructor(private readonly actionService: ActionService) {}
 
@@ -32,5 +32,10 @@ export class ActionController {
   @Post('instance')
   async createActionInstance(@Body() data: Prisma.ActionInstanceCreateInput) {
     return this.actionService.createActionInstance(data);
+  }
+
+  @Delete('instance')
+  async deleteActionInstance(@Body() body: { id: string }) {
+    return this.actionService.deleteActionInstance(body.id);
   }
 }
