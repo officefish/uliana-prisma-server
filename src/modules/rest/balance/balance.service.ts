@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@modules/prisma/prisma.service';
-import { Player } from '@prisma/client';
+import { Player, PlayerBalance } from '@prisma/client';
 
 @Injectable()
-export class BalanceService {
-  //public readonly KEY_GENERATION_INTERVAL = 4 * 60 * 60 * 1000; // 4 часа в миллисекундах
+export class BalanceService {    
+  public readonly GEM_GENERATION_INTERVAL = 4 * 60 * 60 * 1000; // 4 часа в миллисекундах
+  public readonly CRYSTAL_GENERATION_INTERVAL = 48 * 60 * 60 * 1000; // 4 часа в миллисекундах
+
   
   private readonly logger = new Logger(BalanceService.name)  
 
@@ -27,7 +29,9 @@ export class BalanceService {
       return null
     }
 
-    return this.prisma.playerBalance.findUnique({ where: { id: player.balanceId } })
+    return this.prisma.playerBalance.findUnique(
+      { where: { id: player.balanceId }
+    })
   }
 
   async createBalanceForPlayer(player: Player) {
@@ -73,6 +77,30 @@ export class BalanceService {
       data: { gems: balance.gems - gems },
     });
     return updatedBalance;
+  }
+
+  async incrementGemsByTimer(balance: PlayerBalance) {
+    // Функция сброса счетчика ключей, если пользователь был неактивен более 4 часов
+    
+    return await this.prisma.playerBalance.update({
+      where: { id: balance.id },
+      data: { 
+        gems: balance.gems + 1,
+        lastGemReady: new Date(),
+      },
+    });
+  }
+
+  async incrementCrystalsByTimer(balance: PlayerBalance) {
+    // Функция сброса счетчика ключей, если пользователь был неактивен более 4 часов
+  
+    return await this.prisma.playerBalance.update({
+      where: { id: balance.id },
+      data: { 
+        gems: balance.crystals + 1,
+        lastCrystalReady: new Date(),
+      },
+    });
   }
 
 }

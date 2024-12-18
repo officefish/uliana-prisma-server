@@ -60,5 +60,4 @@ export class PlayerController {
 
         return reply.type('application/json').send(actions);
     }
-
 }
