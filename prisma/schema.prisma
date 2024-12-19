@@ -23,11 +23,7 @@ model User {
   verified  Boolean
   role      Role       @default(GUEST)
   sessions  Session[]
-  basicInfo BasicInfo?
-  quote     Quote?
-  domain    Domain?
-  avatar    Avatar?
-  cover     Cover?
+ 
   tartan    Tartan?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -56,77 +52,6 @@ model Session {
 }
 
 // BasicInfo
-
-model FullName {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  firstName   String?
-  lastName    String?
-  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
-  basicInfoId String    @unique @db.ObjectId
-}
-
-model Career {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  company     String?
-  role        String?
-  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
-  basicInfoId String    @unique @db.ObjectId
-}
-
-model Education {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  university  String?
-  faculty     String?
-  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
-  basicInfoId String    @unique @db.ObjectId
-}
-
-model Location {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  country     String?
-  region      String?
-  timeZone    String?
-  basicInfo   BasicInfo @relation(fields: [basicInfoId], references: [id])
-  basicInfoId String    @unique @db.ObjectId
-}
-
-model BasicInfo {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  user      User       @relation(fields: [userId], references: [id])
-  userId    String     @unique @db.ObjectId
-  fullName  FullName?
-  career    Career?
-  education Education?
-  location  Location?
-}
-
-model Quote {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  user    User    @relation(fields: [userId], references: [id])
-  userId  String  @unique @db.ObjectId
-  content String?
-}
-
-model Domain {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  user   User    @relation(fields: [userId], references: [id])
-  userId String  @unique @db.ObjectId
-  value  String? @unique
-}
-
-model Avatar {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  user   User    @relation(fields: [userId], references: [id])
-  userId String  @unique @db.ObjectId
-  url    String?
-}
-
-model Cover {
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  user   User    @relation(fields: [userId], references: [id])
-  userId String  @unique @db.ObjectId
-  url    String?
-}
 
 model Tartan {
   id      String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -190,6 +115,8 @@ model Player {
 
   actions  ActionInstance[] @relation("PlayerActions") // Все действия, совершенные игроком
   received ActionInstance[] @relation("TargetActions") // Все действия, направленные на игрока
+
+  location LocationInstance?  @relation("PlayerLocation")
 
   @@map("player")
 }
@@ -391,3 +318,60 @@ model ResourceEffect {
 
   @@map("resource_effect")
 }
+
+model LocationCost {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  resource   ResourceType // Тип ресурса: серебро, энергия и т.д.
+  value      Int // Чистое значение
+  percentage Float? // Процентное значение (опционально)
+  location   Location[]
+
+  @@map("location_cost")
+}
+
+model LocationEffect {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  resource   ResourceType // Тип ресурса: серебро, энергия и т.д.
+  effect     EffectType
+  value      Int // Чистое значение
+  percentage Float? // Процентное значение (опционально)
+  location   Location[]
+
+  @@map("location_effect")
+}
+
+model Location {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  price   LocationCost?   @relation(fields: [priceId], references: [id])
+  priceId String?         @db.ObjectId
+
+  effect   LocationEffect? @relation(fields: [effectid], references: [id])
+  effectid String?         @db.ObjectId
+
+  type      LocationType 
+  timestamp DateTime    @default(now())
+
+  instances LocationInstance[]
+  @@map("location")
+}
+
+model LocationInstance {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  player   Player @relation("PlayerLocation", fields: [playerId], references: [id]) 
+
+  playerId String @db.ObjectId @unique
+
+  template   Location @relation(fields: [templateId], references: [id])
+  templateId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  @@map("location_instance")
+}
+
+enum LocationType {
+  CROSSROADS_ZERO
+  MARCUS_ROOM
+  AGATA_ROOM
+}
+

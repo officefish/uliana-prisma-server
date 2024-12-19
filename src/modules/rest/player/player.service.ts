@@ -76,6 +76,29 @@ export class PlayerService {
     return { actions: player.actions, received: player.received }  
   }
 
+  async getPlayerByTgIdWithLocation(tgId) {
+    const account = await this.prisma.telegramAccount.findUnique({
+      where: { tgId }
+    })
+    if (!account) {
+       return null
+      }
+
+    let player = await this.prisma.player.findUnique({ 
+      where: { 
+          tgAccountId : account.id
+      },
+      include: {
+          location: true,
+      }
+    })
+    if (!player) {
+      return null
+    }
+
+    return player  
+  }
+
   async createPlayer(createPlayerDto: CreatePlayerDto) : Promise<PlayerWithTgAccount> {
 
     const { tgAccount, referralCode, active } = createPlayerDto;

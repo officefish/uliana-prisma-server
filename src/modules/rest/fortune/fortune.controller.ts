@@ -21,7 +21,6 @@ export class FortuneController {
 
     public readonly BAWDRY_PRICE  = 1; // temp price, use mongodb fortune template instead 
 
-
     private readonly logger = new Logger(FortuneController.name);
     constructor(
         private readonly  fortuneService: FortuneService,

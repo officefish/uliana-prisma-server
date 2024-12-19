@@ -16,6 +16,7 @@ export function initializeSwagger(app: INestApplication) {
     .addTag('for-stars-shop')
     .addTag('action')
     .addTag('fortune')
+    .addTag('location')
     .build()
   patchNestJsSwagger()
   const document = SwaggerModule.createDocument(app, config)

@@ -7,6 +7,7 @@ import { AuthModule } from '@/modules/rest/auth/auth.module';
 import { ForStarsShopModule } from '@/modules/rest/for-stars-shop/for-stars-shop.module';
 import { BalanceModule } from '@/modules/rest/balance/balance.module';
 import { FortuneModule } from '@/modules/rest/fortune/fortune.module';
+import { LocationModule } from '@/modules/rest/location/location.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { FortuneModule } from '@/modules/rest/fortune/fortune.module';
     AuthModule,
     ForStarsShopModule,
     BalanceModule,
-    FortuneModule
+    FortuneModule,
+    LocationModule
   ],
   controllers: [],
   providers: [],
