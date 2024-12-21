@@ -371,7 +371,7 @@ model LocationInstance {
 
 enum LocationType {
   CROSSROADS_ZERO
-  MARCUS_ROOM
+  MARKUS_ROOM
   AGATA_ROOM
 }
 

@@ -89,7 +89,9 @@ export class PlayerService {
           tgAccountId : account.id
       },
       include: {
-          location: true,
+          location: {
+            include: { template : true }
+          }
       }
     })
     if (!player) {

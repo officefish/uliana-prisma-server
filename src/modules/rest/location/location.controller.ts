@@ -59,8 +59,12 @@ export class LocationController {
 
         const locationTemplate = await this.locationService.getDefaultTemplate();
 
-        const location = await this.locationService.createLocationInstance(player, locationTemplate);
-       
+        let location = await this.locationService.getPlayerLocationImstance(player);
+
+        if (!location) {
+            location = await this.locationService.createLocationInstance(player, locationTemplate);
+        }
+
         return reply.type('application/json').send({ location });  
     }
 

@@ -4,10 +4,6 @@ import { subDays } from 'date-fns';
 import { ConfigService } from '@nestjs/config'
 import { EffectType, LocationInstance, LocationType, Player, ResourceType } from '@prisma/client';
   
-// import { 
-//     GetReferralsQueryDto,
-// } from './dto'
-// import { Player } from '@prisma/client'
 
 @Injectable()
 export class LocationService {
@@ -56,13 +52,25 @@ export class LocationService {
         effect: true,
       }
     });
-    return location;
-  }}
 
+  }
+  this.logger.log(`Created template for ${location.type} type`);
+  return location;
+}
 
- 
+  async getPlayerLocationImstance(player: Player): Promise<LocationInstance | null> {
+    return await this.prisma.locationInstance.findFirst({
+      where: {
+        player: { id: player.id },
+      },
+      include: {
+        template: true,
+      }
+    })
+  }
 
   async createLocationInstance(player:Player, locationTemplate): Promise<LocationInstance>  {
+      
     return this.prisma.locationInstance.create({
 
         data: {
@@ -78,28 +86,31 @@ export class LocationService {
             },
         },
         include: {
-            template: true,        }
+          template: true,        
+        }
     });
   }
 
-  async selectPlayerLocation(player: Player, type: string) {
-    let template;
-    
-    switch (type) {
-      case 'agata':
-        template = await this.getTemplateRoom(LocationType.AGATA_ROOM);
-        break;
-      case'marcus':
-        template = await this.getTemplateRoom(LocationType.MARCUS_ROOM);
-        break;
+  async getTemplateByKey(key: string) {
+    switch (key) {
+      case 'agata':  
+      {
+        this.logger.log(`Triing creating template for ${LocationType.AGATA_ROOM} type`);
+        return await this.getTemplateRoom(LocationType.AGATA_ROOM);
+      }
+    case'markus': {
+        this.logger.log(`Triing creating template for ${LocationType.MARKUS_ROOM} type`);
+        return await this.getTemplateRoom(LocationType.MARKUS_ROOM);
+      }
     }
+    return null;
+  }
 
-    if (!template) {
-      const msg = `No location template found for ${location}`
-      this.logger.error(msg);
-      throw new BadRequestException(msg);
-    }
-
+  async updatePlayerInstance(
+    player: Player, 
+    template,
+    //locationInstance: LocationInstance
+  ) {
     return this.prisma.locationInstance.update({
       where: { playerId: player.id },
       data: {
@@ -120,7 +131,17 @@ export class LocationService {
     });
   }
 
-  
+  async selectPlayerLocation(player: Player, key: string) {
+    const template = await this.getTemplateByKey(key);
+
+    if (!template) {
+      const msg = `No location template found for ${key} key`
+      this.logger.error(msg);
+      throw new BadRequestException(msg);
+    }
+
+    return this.updatePlayerInstance(player, template);
+  }
 }
 
 
