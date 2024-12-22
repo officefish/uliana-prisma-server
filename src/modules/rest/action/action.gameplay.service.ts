@@ -63,6 +63,43 @@ export class ActionGameplayService {
     return newAction;
   }
 
+  async findOrCreateKindnessAction(): Promise<Action> {
+    const existingAction = await this.prisma.action.findFirst({
+      where: {
+        type: ActionType.KINDNESS,
+      },
+    });
+
+    // Если нашли, возвращаем найденное действие
+    if (existingAction) {
+      return existingAction;
+    }
+
+    // Если не нашли, создаем новый шаблон
+    const newAction = await this.prisma.action.create({
+      data: {
+        type: ActionType.KINDNESS,
+        // Вы можете задать здесь значения для `price` и `effect`, если это необходимо
+        price: {
+          create: {
+            resource: ResourceType.GEMS,
+            value: 1,
+          },
+        },
+        effect: {
+          create: {
+            resource: ResourceType.ENERGY,
+            effect: EffectType.DECREASING,
+            value: 0,
+            percentage: 10,
+          },
+        },
+      },
+    });
+
+    return newAction;
+  }
+
    /**
    * Creates a BAWDRY action instance for a given player.
    */
@@ -71,7 +108,20 @@ export class ActionGameplayService {
     const bawdryAction = await this.findOrCreateBawdryAction();
 
     // Создать экземпляр действия для игрока
-    const actionInstance = await this.prisma.actionInstance.create({
+    return await this.createAtionInstance(playerId, targetId, bawdryAction.id);
+  }
+
+  
+  async createKindnessActionInstance(playerId: string, targetId?: string): Promise<ActionInstance & {template: Action}> {
+    // Найти или создать шаблон действия BAWDRY
+    const kindnessAction = await this.findOrCreateKindnessAction();
+
+    // Создать экземпляр действия для игрока
+    return await this.createAtionInstance(playerId, targetId, kindnessAction.id);
+  }
+
+  async createAtionInstance(playerId: string, targetId: string, actionId: string): Promise<ActionInstance & {template: Action} | null> {
+    return await this.prisma.actionInstance.create({
       data: {
         player: {
           connect: {
@@ -87,7 +137,7 @@ export class ActionGameplayService {
           : undefined,
         template: {
           connect: {
-            id: bawdryAction.id,
+            id: actionId,
           },
         },
         uuid: crypto.randomUUID(), // Генерация уникального идентификатора
@@ -96,8 +146,6 @@ export class ActionGameplayService {
         template : true
       }
     });
-
-    return actionInstance;
   }
 }
 
