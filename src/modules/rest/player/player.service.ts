@@ -53,7 +53,7 @@ export class PlayerService {
     return player
   }
 
-  async getPlayerActionsByTgId(tgId: string)  {
+  async getPlayerActionsByTgId(tgId: string, skip: number, take: number) {
     const account = await this.prisma.telegramAccount.findUnique({
         where: { tgId }
     })
@@ -61,21 +61,75 @@ export class PlayerService {
        return null
       }
 
-    const player = await this.prisma.player.findUnique({ 
-        where: { 
-            tgAccountId : account.id
+      const playerId = account.id; // Предположим, что playerId известен
+
+      // Получение данных игрока (без actions и received)
+      const player = await this.prisma.player.findUnique({
+        where: { tgAccountId: playerId },
+      });
+      
+      // Получение actions с пагинацией
+      const actions = await this.prisma.actionInstance.findMany({
+        where: {
+          playerId: player.id, // Связь по playerId
+          targetId: {
+            not: null, 
+          },
         },
         include: {
-            actions: true,
-            received: true
-        }
-    })
+          template: true,
+          target: {
+            include: { tgAccount: true },
+          },
+        },
+        take, // Количество элементов на странице
+        skip,  // Пропущенные элементы
+      });
+      
     if (!player) {
       return null
     }
-    return { actions: player.actions, received: player.received }  
+    return actions  
   }
 
+  async getPlayerReceivedActionsByTgId(tgId: string, skip: number, take: number) {
+    const account = await this.prisma.telegramAccount.findUnique({
+        where: { tgId }
+    })
+    if (!account) {
+       return null
+      }
+
+      const playerId = account.id; // Предположим, что playerId известен
+
+      // Получение данных игрока (без actions и received)
+      const player = await this.prisma.player.findUnique({
+        where: { tgAccountId: playerId },
+      });
+      
+      // Получение received с пагинацией
+      const received = await this.prisma.actionInstance.findMany({
+        where: {
+          targetId: player.id, // Связь по playerId
+        },
+        include: {
+          template: true,
+          player: {
+            include: { tgAccount: true },
+          },
+        },
+        take, // Количество элементов на странице
+        skip,  // Пропущенные элементы
+    });
+
+    if (!player) {
+      return null
+    }
+    return received   
+  }
+
+
+ 0
   async getPlayerByTgIdWithLocation(tgId) {
     const account = await this.prisma.telegramAccount.findUnique({
       where: { tgId }

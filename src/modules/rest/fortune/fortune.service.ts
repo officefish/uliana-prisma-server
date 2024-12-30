@@ -15,7 +15,7 @@ export class FortuneService {
       ];
 
       private readonly wish_constants: string[] = [
-        'mercury', 'venus', 'earth, mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+        'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'];
   
   private readonly logger = new Logger(FortuneService.name)  
 
