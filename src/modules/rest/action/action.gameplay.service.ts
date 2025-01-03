@@ -103,24 +103,35 @@ export class ActionGameplayService {
    /**
    * Creates a BAWDRY action instance for a given player.
    */
-   async createBawdryActionInstance(playerId: string, targetId?: string): Promise<ActionInstance & {template: Action}> {
+   async createBawdryActionInstance(
+    playerId: string, 
+    key: string,
+    targetId?: string): Promise<ActionInstance & {template: Action}> {
     // Найти или создать шаблон действия BAWDRY
     const bawdryAction = await this.findOrCreateBawdryAction();
 
     // Создать экземпляр действия для игрока
-    return await this.createAtionInstance(playerId, targetId, bawdryAction.id);
+    return await this.createAtionInstance(playerId, targetId, bawdryAction.id, key);
   }
 
   
-  async createKindnessActionInstance(playerId: string, targetId?: string): Promise<ActionInstance & {template: Action}> {
+  async createKindnessActionInstance(
+    playerId: string, 
+    key: string,
+    targetId?: string): Promise<ActionInstance & {template: Action}> {
     // Найти или создать шаблон действия BAWDRY
     const kindnessAction = await this.findOrCreateKindnessAction();
 
     // Создать экземпляр действия для игрока
-    return await this.createAtionInstance(playerId, targetId, kindnessAction.id);
+    return await this.createAtionInstance(playerId, targetId, kindnessAction.id, key);
   }
 
-  async createAtionInstance(playerId: string, targetId: string, actionId: string): Promise<ActionInstance & {template: Action} | null> {
+  async createAtionInstance(
+    playerId: string, 
+    targetId: string, 
+    actionId: string,
+    key: string
+  ): Promise<ActionInstance & {template: Action} | null> {
     return await this.prisma.actionInstance.create({
       data: {
         player: {
@@ -140,6 +151,7 @@ export class ActionGameplayService {
             id: actionId,
           },
         },
+        key, // Вы можете задать здесь свойство `key`, если это необходимо
         uuid: crypto.randomUUID(), // Генерация уникального идентификатора
       },
       include: {

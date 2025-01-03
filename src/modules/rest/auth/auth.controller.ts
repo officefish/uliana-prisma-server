@@ -140,23 +140,26 @@ import {
        //const referralCode = command.split('=')[1]
       if (command && command.startsWith("referrerId=")) {
        
-        const auth = this.authService.registerOrLoginWithReferrer(
+        const auth = await this.authService.registerOrLoginWithReferrer(
           dto,
           false,
           command
         )
-        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        if (auth) {
+          this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        }
         return auth
       }
 
       if (command && command.startsWith("action=")) {
-       
-        const auth = this.authService.registerOrLoginWithAction(
+        const auth = await this.authService.registerOrLoginWithAction(
           dto,
           false,
           command
         )
-        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        if (auth) {
+          this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        }
         return auth
       }
   
@@ -196,12 +199,14 @@ import {
 
       if (command && command.startsWith("action=")) {
        
-        const auth = this.authService.registerOrLoginWithAction(
+        const auth = await this.authService.registerOrLoginWithAction(
           dto,
           true,
           command
         )
-        this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        if (auth) {
+          this.logger.log(`Player data: ${JSON.stringify(auth)}`)
+        }
         return auth
       }
   

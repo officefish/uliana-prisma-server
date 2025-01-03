@@ -256,6 +256,8 @@ model Action {
   timestamp DateTime    @default(now())
 
   instances ActionInstance[]
+
+  @@map("action_template")
 }
 
 model ActionInstance {
@@ -269,11 +271,13 @@ model ActionInstance {
   template   Action @relation(fields: [templateId], references: [id])
   templateId String @db.ObjectId
 
+  key        String?
+
   createdAt DateTime @default(now())
 
   uuid String @unique
 
-  @@map("action")
+  @@map("action_instance")
 }
 
 enum ActionType {

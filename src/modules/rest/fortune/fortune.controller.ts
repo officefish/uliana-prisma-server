@@ -74,7 +74,9 @@ export class FortuneController {
 
         const bawdry = await this.fortuneService.getRandomBawdry()
 
-        const actionInstance = await this.gameplay.createBawdryActionInstance(player.id);
+        const key = `bawdry:${bawdry}`
+
+        const actionInstance = await this.gameplay.createBawdryActionInstance(player.id, key);
         const updatedBalance = await this.balanceService.removeGemsByTgId(tgId, 1);
 
         if (!updatedBalance) {
@@ -95,7 +97,7 @@ export class FortuneController {
     @UseGuards(PlayerGuard)
     @ApiOperation({ summary: 'Get random midnight wish' })
     @ApiResponse({ status: 200, description: 'Success response with Ok status gives \"pong\" string as response' })
-    async getFortune(
+    async getMidnightWish(
         @Req() req: FastifyRequest,
         @Res() reply: FastifyReply
     ) {
@@ -133,8 +135,10 @@ export class FortuneController {
         }
 
         const wish = await this.fortuneService.getRandomWish()
+
+        const key = `midnight_wish:${wish}`
         
-        const actionInstance = await this.gameplay.createKindnessActionInstance(player.id);
+        const actionInstance = await this.gameplay.createKindnessActionInstance(player.id, key);
         const updatedBalance = await this.balanceService.removeGemsByTgId(tgId, 1);
 
         if (!updatedBalance) {

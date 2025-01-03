@@ -8,7 +8,7 @@ import {
 import { PrismaService } from '@modules/prisma/prisma.service'
 
 import { TokenService } from '@modules/token/token.service'
-import { PlayerTokenDTO } from '@modules/token/dto'
+import { PlayerTokenDTO, PlayerWithTgAccount } from '@modules/token/dto'
   
 import { SuccessMessageType } from '@/helpers/common/types'
   
@@ -19,6 +19,7 @@ import { TelegramUnsafeInitDataDto } from './dto/telegram-initial.dto'
 import { PlayerService } from '../player/player.service'
 import { CreateTelegramAccountDto } from '../player/dto/player.dto'
 import { TelegramUserType } from '@/helpers/types/telegram-user.type'
+import { ActionInstance, Prisma } from '@prisma/client'
 
     
   @Injectable()
@@ -35,7 +36,7 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
     async registerOrLogin(
       dto: TelegramUnsafeInitDataDto,
       unsafe: boolean
-    ) {
+  ) {
 
       this.logger.log(`Attempting to register or login player: {username: ${dto.username}, id: ${dto.tgId}} `);
       
@@ -53,12 +54,16 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
         const loginPlayer = await this.prismaService.player.update({
           where: { id: candidate.id },
           data: { lastLogin: new Date(), unsafe },
+          include: {
+            tgAccount: true
+          }
         })
 
         return {
           player: loginPlayer,
           ...tokens,
           isNew: false,
+          action: null
         };
       }
   
@@ -77,7 +82,7 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
       const player = await this.playerService.createPlayer({
         tgAccount,
         referralCode: generatedCode,
-        active: true
+        active: true,
       })
 
       const tokens = this.tokenService.generateTokens({
@@ -92,6 +97,7 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
         player,
         ...tokens,
         isNew: true,
+        action: null
       }
       return response
     }
@@ -124,6 +130,9 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
       return await this.prismaService.player.update({
         where: { id },
         data: { invitedBy },
+        include: {
+          tgAccount: true,
+        },
       })
     }
   
@@ -302,19 +311,30 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
 
       if (!action) {
         this.logger.warn("Action with UUID: " + uuid + " not found.")
-        return auth
+        return { auth }
       }
 
       const player = await this.playerService.getPlayerByTgId(String(dto.tgId))
       
       if (!player) {
         this.logger.warn(`Player with tgId: ${dto.tgId} not found.`);
-        return auth
+        return { auth }
       }
       
       if (action.playerId === player.id) {
         this.logger.log(`Player with tgId: ${dto.tgId} trying to use action himself with no effect`);
-        return auth
+        return { auth }
+      }
+
+      if (action.targetId === player.id) {
+        this.logger.log(`Player with tgId: ${dto.tgId} opens old action`);
+        auth.action = action
+        return { auth }
+      }
+
+      if (action.targetId) {
+        this.logger.log(`Player with tgId: ${dto.tgId} opens already used action`);
+        return { auth }
       }
 
       const updateAction = await this.prismaService.actionInstance.update({
@@ -331,12 +351,10 @@ import { TelegramUserType } from '@/helpers/types/telegram-user.type'
 
       if (updateAction) {
         this.logger.log(`Player with tgId: ${dto.tgId} now is ${updateAction.template.type} action target`);
+        auth.action = updateAction
         return auth
       }
 
       return auth
-
     }
-       
-  
   }

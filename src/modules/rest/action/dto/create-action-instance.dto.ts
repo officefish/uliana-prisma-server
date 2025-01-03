@@ -13,4 +13,8 @@ export class CreateActionInstanceDto {
 
   @IsUUID()
   uuid: string;
+
+  @IsOptional()  
+  @IsString()
+  key: string;
 }
